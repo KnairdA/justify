@@ -22,7 +22,7 @@ class Random {
 
 		Random();
 
-		Range makeRange(const std::size_t, const std::size_t);
+		Range makeRange(const std::size_t a, const std::size_t b);
 
 	private:
 		std::random_device device_;

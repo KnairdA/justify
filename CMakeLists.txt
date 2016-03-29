@@ -13,5 +13,6 @@ include_directories(
 add_executable(
 	justify
 	justify.cc
+	src/line_accumulator.cc
 	src/random.cc
 )
