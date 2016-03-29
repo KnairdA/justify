@@ -6,7 +6,12 @@ set(
 	"${CMAKE_CXX_FLAGS} -std=c++14 -W -Wall -Wextra -Winline -pedantic"
 )
 
+include_directories(
+	src/
+)
+
 add_executable(
 	justify
 	justify.cc
+	src/random.cc
 )

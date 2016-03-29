@@ -1,26 +1,24 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <random>
-#include <algorithm>
-#include <cassert>
+
+#include "random.h"
 
 class LineAccumulator {
-	static const std::size_t MAX_LENGTH = 60;
-
 	public:
-		LineAccumulator():
-			device_(),
-			length_(0),
-			tokens_(),
-			spaces_() { }
+		LineAccumulator(const std::size_t max_length):
+			max_length_{max_length},
+			random_{},
+			length_{0},
+			tokens_{},
+			spaces_{} { }
 
 		~LineAccumulator() {
 			this->discharge(false);
 		}
 
 		void operator()(const std::string& word) {
-			if ( ( this->length_ + word.length() + 1 ) > MAX_LENGTH ) {
+			if ( ( this->length_ + word.length() + 1 ) > this->max_length_ ) {
 				this->pop_trailing_token();
 				this->discharge(true);
 			}
@@ -30,7 +28,9 @@ class LineAccumulator {
 		}
 
 	private:
-		std::random_device       device_;
+		const std::size_t max_length_;
+
+		utility::Random          random_;
 		std::size_t              length_;
 		std::vector<std::string> tokens_;
 		std::vector<std::size_t> spaces_;
@@ -58,11 +58,10 @@ class LineAccumulator {
 
 		void discharge(const bool full) {
 			if ( full ) {
-				std::mt19937 generator(this->device_());
-				std::uniform_int_distribution<> random(0, this->spaces_.size()-1);
+				auto range = this->random_.makeRange(0, this->spaces_.size()-1);
 
-				while ( this->length_ < MAX_LENGTH ) {
-					this->increase_space_at(random(generator));
+				while ( this->length_ < this->max_length_ ) {
+					this->increase_space_at(range.get());
 				}
 			}
 
@@ -83,7 +82,7 @@ int main() {
 	std::cout.sync_with_stdio(false);
 	std::cin.sync_with_stdio(false);
 
-	LineAccumulator acc;
+	LineAccumulator acc{60};
 	std::string     word;
 
 	while ( std::cin >> word ) {
