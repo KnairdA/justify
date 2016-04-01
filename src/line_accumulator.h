@@ -1,5 +1,6 @@
 #pragma once
 
+#include <tuple>
 #include <string>
 #include <vector>
 
@@ -15,16 +16,12 @@ class LineAccumulator {
 	private:
 		const std::size_t max_length_;
 
-		utility::Random          random_;
-		std::size_t              length_;
-		std::vector<std::string> tokens_;
-		std::vector<std::size_t> spaces_;
+		utility::Random random_;
+		std::size_t     length_;
 
-		void add_token(const std::string& token);
-		void add_space();
-
-		void increase_space_at(const std::size_t index);
-		void pop_trailing_token();
+		std::vector<
+			std::pair<std::string, std::uint8_t>
+		> tokens_;
 
 		void discharge(const bool full);
 

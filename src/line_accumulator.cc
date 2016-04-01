@@ -1,65 +1,64 @@
 #include "line_accumulator.h"
 
 #include <iostream>
+#include <algorithm>
 
 LineAccumulator::LineAccumulator(const std::size_t max_length):
 	max_length_{max_length},
 	random_{},
 	length_{0},
-	tokens_{},
-	spaces_{} { }
+	tokens_{} { }
 
 LineAccumulator::~LineAccumulator() {
 	this->discharge(false);
 }
 
 void LineAccumulator::operator()(const std::string& word) {
-	if ( ( this->length_ + word.length() + 1 ) > this->max_length_ ) {
-		this->pop_trailing_token();
+	if ( ( this->length_ + word.length() ) > this->max_length_ ) {
 		this->discharge(true);
 	}
 
-	this->add_token(word);
-	this->add_space();
-}
+	this->tokens_.emplace_back(word, 0);
+	this->length_ += word.length();
 
-void LineAccumulator::add_token(const std::string& token) {
-	this->length_ += token.length();
-	this->tokens_.emplace_back(token);
-}
-
-void LineAccumulator::add_space() {
-	this->add_token(" ");
-	this->spaces_.emplace_back(this->tokens_.size() - 1);
-}
-
-void LineAccumulator::increase_space_at(const std::size_t index) {
-	this->tokens_.at(this->spaces_[index]).append(" ");
-	++this->length_;
-}
-
-void LineAccumulator::pop_trailing_token() {
-	this->length_ -= this->tokens_.back().length();
-	this->tokens_.pop_back();
-	this->spaces_.pop_back();
+	if ( this->length_ < this->max_length_ ) {
+		this->tokens_.back().second += 1;
+		this->length_               += 1;
+	}
 }
 
 void LineAccumulator::discharge(const bool full) {
 	if ( full ) {
-		auto range = this->random_.makeRange(0, this->spaces_.size()-1);
+		this->length_              -= this->tokens_.back().second;
+		this->tokens_.back().second = 0;
+
+		const std::size_t missing = this->max_length_ - this->length_;
+		const std::size_t base    = missing / (this->tokens_.size()-1);
+
+		std::for_each(
+			this->tokens_.begin(),
+			this->tokens_.end()-2,
+			[base, this](auto& token) {
+				token.second  += base;
+				this->length_ += base;
+			}
+		);
+
+		auto range = this->random_.makeRange(0, this->tokens_.size()-2);
 
 		while ( this->length_ < this->max_length_ ) {
-			this->increase_space_at(range.get());
+			this->tokens_[range.get()].second += 1;
+			this->length_                     += 1;
 		}
 	}
 
 	for ( const auto& token : this->tokens_ ) {
-		std::cout << token;
+		std::cout << token.first
+		          << std::string(token.second, ' ');
 	}
 
 	std::cout << '\n';
 
 	this->length_ = 0;
 	this->tokens_.clear();
-	this->spaces_.clear();
 }
