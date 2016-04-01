@@ -3,9 +3,27 @@
 #include <iostream>
 #include <algorithm>
 
-LineAccumulator::LineAccumulator(const std::size_t max_length):
+namespace {
+
+std::vector<std::uint8_t> getRandomIndizes(
+	std::random_device& device,
+	const std::uint8_t n) {
+	std::vector<std::uint8_t> indizes(n);
+	std::iota(indizes.begin(), indizes.end(), 0);
+	std::shuffle(
+		indizes.begin(),
+		indizes.end(),
+		std::mt19937{device()}
+	);
+
+	return indizes;
+}
+
+}
+
+LineAccumulator::LineAccumulator(const std::uint8_t max_length):
 	max_length_{max_length},
-	random_{},
+	device_{},
 	length_{0},
 	tokens_{} { }
 
@@ -32,8 +50,8 @@ void LineAccumulator::discharge(const bool full) {
 		this->length_              -= this->tokens_.back().second;
 		this->tokens_.back().second = 0;
 
-		const std::size_t missing = this->max_length_ - this->length_;
-		const std::size_t base    = missing / (this->tokens_.size()-1);
+		const std::uint8_t missing = this->max_length_ - this->length_;
+		const std::uint8_t base    = missing / (this->tokens_.size()-1);
 
 		std::for_each(
 			this->tokens_.begin(),
@@ -44,12 +62,15 @@ void LineAccumulator::discharge(const bool full) {
 			}
 		);
 
-		auto range = this->random_.makeRange(0, this->tokens_.size()-2);
+		auto indizes = getRandomIndizes(this->device_, this->tokens_.size()-1);
 
-		while ( this->length_ < this->max_length_ ) {
-			this->tokens_[range.get()].second += 1;
-			this->length_                     += 1;
-		}
+		std::for_each(
+			indizes.begin(),
+			indizes.begin()+(this->max_length_ - this->length_),
+			[this](std::uint8_t x) {
+				this->tokens_[x].second += 1;
+			}
+		);
 	}
 
 	for ( const auto& token : this->tokens_ ) {
