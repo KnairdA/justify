@@ -30,6 +30,8 @@ std::vector<std::uint8_t> getRandomIndizes(
 
 }
 
+namespace justify {
+
 LineAccumulator::LineAccumulator(const std::uint8_t max_length):
 	max_length_{max_length},
 	device_{},
@@ -45,13 +47,13 @@ std::uint8_t LineAccumulator::getMissing() const {
 	return this->max_length_ - this->length_;
 }
 
-void LineAccumulator::operator()(const std::string& word) {
-	if ( ( this->length_ + word.length() ) > this->max_length_ ) {
+void LineAccumulator::operator()(const std::string& token) {
+	if ( ( this->length_ + token.length() ) > this->max_length_ ) {
 		this->discharge(true);
 	}
 
-	this->tokens_.emplace_back(word, 0);
-	this->length_ += word.length();
+	this->tokens_.emplace_back(token, 0);
+	this->length_ += token.length();
 
 	if ( this->length_ < this->max_length_ ) {
 		this->tokens_.back().second += 1;
@@ -129,8 +131,8 @@ void LineAccumulator::justify() {
 }
 
 void LineAccumulator::discharge(const bool full) {
-	this->length_              -= this->tokens_.back().second;
-	this->tokens_.back().second = 0;
+	this->length_               -= this->tokens_.back().second;
+	this->tokens_.back().second  = 0;
 
 	if ( full ) {
 		this->justify();
@@ -145,4 +147,6 @@ void LineAccumulator::discharge(const bool full) {
 
 	this->length_ = 0;
 	this->tokens_.clear();
+}
+
 }

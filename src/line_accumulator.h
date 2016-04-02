@@ -5,6 +5,8 @@
 #include <vector>
 #include <random>
 
+namespace justify {
+
 class LineAccumulator {
 	public:
 		LineAccumulator(const std::uint8_t max_length);
@@ -12,7 +14,7 @@ class LineAccumulator {
 
 		std::uint8_t getMissing() const;
 
-		void operator()(const std::string& word);
+		void operator()(const std::string& token);
 
 	private:
 		const std::uint8_t max_length_;
@@ -30,3 +32,4 @@ class LineAccumulator {
 
 };
 
+}

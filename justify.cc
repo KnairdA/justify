@@ -6,10 +6,10 @@ int main() {
 	std::cout.sync_with_stdio(false);
 	std::cin.sync_with_stdio(false);
 
-	LineAccumulator acc{60};
-	std::string     word;
+	justify::LineAccumulator acc{60};
+	std::string              token;
 
-	while ( std::cin >> word ) {
-		acc(word);
+	while ( std::cin >> token ) {
+		acc(token);
 	}
 }
