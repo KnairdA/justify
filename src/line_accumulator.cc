@@ -1,5 +1,6 @@
 #include "line_accumulator.h"
 
+#include <cassert>
 #include <iostream>
 #include <algorithm>
 
@@ -60,18 +61,22 @@ void LineAccumulator::operator()(const std::string& word) {
 
 void LineAccumulator::justify() {
 	switch ( this->tokens_.size() ) {
+		// There is no sensible block justification of null or any single token
 		case 0:
 		case 1: {
 			this->length_ = this->max_length_;
 
 			break;
 		}
+		// i.e. left align the first token and right align the second token
 		case 2: {
 			this->tokens_[0].second += this->getMissing();
 			this->length_            = this->max_length_;
 
 			break;
 		}
+		// most common branch for normal texts, add the maximum equal amount of
+		// spaces to all but the last token
 		default: {
 			const std::uint8_t base = this->getMissing()
 			                        / (this->tokens_.size() - 2);
@@ -89,10 +94,13 @@ void LineAccumulator::justify() {
 		}
 	}
 
+	assert(this->getMissing() < this->tokens_.size());
+
 	switch ( this->getMissing() ) {
 		case 0: {
 			break;
 		}
+		// randomly distribute missing spaces
 		case 1: {
 			this->tokens_[
 				getRandomIndex(this->random_, this->tokens_.size() - 2)
