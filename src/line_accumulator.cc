@@ -59,17 +59,35 @@ void LineAccumulator::operator()(const std::string& word) {
 }
 
 void LineAccumulator::justify() {
-	const std::uint8_t base = this->getMissing()
-	                        / (this->tokens_.size() - 1);
+	switch ( this->tokens_.size() ) {
+		case 0:
+		case 1: {
+			this->length_ = this->max_length_;
 
-	std::for_each(
-		this->tokens_.begin(),
-		this->tokens_.end()-2,
-		[&, base](auto& token) {
-			token.second  += base;
-			this->length_ += base;
+			break;
 		}
-	);
+		case 2: {
+			this->tokens_[0].second += this->getMissing();
+			this->length_            = this->max_length_;
+
+			break;
+		}
+		default: {
+			const std::uint8_t base = this->getMissing()
+			                        / (this->tokens_.size() - 2);
+
+			std::for_each(
+				this->tokens_.begin(),
+				this->tokens_.end() - 2,
+				[&, base](auto& token) {
+					token.second  += base;
+					this->length_ += base;
+				}
+			);
+
+			break;
+		}
+	}
 
 	switch ( this->getMissing() ) {
 		case 0: {
@@ -77,7 +95,7 @@ void LineAccumulator::justify() {
 		}
 		case 1: {
 			this->tokens_[
-				getRandomIndex(this->random_, this->tokens_.size() - 1)
+				getRandomIndex(this->random_, this->tokens_.size() - 2)
 			].second += 1;
 
 			break;
@@ -85,12 +103,12 @@ void LineAccumulator::justify() {
 		default: {
 			const auto indizes = getRandomIndizes(
 				this->random_,
-				this->tokens_.size() - 1
+				this->tokens_.size() - 2
 			);
 
 			std::for_each(
 				indizes.begin(),
-				indizes.begin() + (this->max_length_ - this->length_),
+				indizes.begin() + this->getMissing(),
 				[&](std::uint8_t x) {
 					this->tokens_[x].second += 1;
 					this->length_           += 1;
