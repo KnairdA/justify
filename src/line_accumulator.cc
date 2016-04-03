@@ -6,23 +6,29 @@
 
 namespace {
 
+static std::mt19937 generator;
+
 std::uint8_t getRandomIndex(
-	std::mt19937&      random,
+	const int          seed,
 	const std::uint8_t n
 ) {
-	return std::uniform_int_distribution<std::uint8_t>{0, n}(random);
+	generator.seed(seed);
+
+	return std::uniform_int_distribution<std::uint8_t>{0, n}(generator);
 }
 
 std::vector<std::uint8_t> getRandomIndizes(
-	std::mt19937&      random,
+	const int          seed,
 	const std::uint8_t n
 ) {
+	generator.seed(seed);
+
 	std::vector<std::uint8_t> indizes(n);
 	std::iota(indizes.begin(), indizes.end(), 0);
 	std::shuffle(
 		indizes.begin(),
 		indizes.end(),
-		random
+		generator
 	);
 
 	return indizes;
@@ -34,8 +40,6 @@ namespace justify {
 
 LineAccumulator::LineAccumulator(const std::uint8_t max_length):
 	max_length_{max_length},
-	device_{},
-	random_{device_()},
 	length_{0},
 	tokens_{} { }
 
@@ -62,6 +66,9 @@ void LineAccumulator::operator()(const std::string& token) {
 }
 
 void LineAccumulator::justify() {
+	const int seed = this->tokens_.size()
+	               + this->getMissing();
+
 	switch ( this->tokens_.size() ) {
 		// There is no sensible block justification of null or any single token
 		case 0:
@@ -105,16 +112,13 @@ void LineAccumulator::justify() {
 		// randomly distribute missing spaces
 		case 1: {
 			this->tokens_[
-				getRandomIndex(this->random_, this->tokens_.size() - 2)
+				getRandomIndex(seed, this->tokens_.size() - 2)
 			].second += 1;
 
 			break;
 		}
 		default: {
-			const auto indizes = getRandomIndizes(
-				this->random_,
-				this->tokens_.size() - 2
-			);
+			const auto indizes = getRandomIndizes(seed, this->tokens_.size() - 2);
 
 			std::for_each(
 				indizes.begin(),

@@ -19,9 +19,7 @@ class LineAccumulator {
 	private:
 		const std::uint8_t max_length_;
 
-		std::random_device device_;
-		std::mt19937       random_;
-		std::uint8_t       length_;
+		std::uint8_t length_;
 
 		std::vector<
 			std::pair<std::string, std::uint8_t>
