@@ -34,6 +34,22 @@ std::vector<std::uint8_t> getRandomIndizes(
 	return indizes;
 }
 
+std::size_t getCharacterLength(const std::string& token) {
+	std::size_t codeUnitIndex  = 0;
+	std::size_t codePointIndex = 0;
+
+	while ( token.data()[codeUnitIndex] ) {
+		// advance `codePointIndex` if current unit is not a continuation byte
+		// see RFC3629 for further information
+		if ( (token.data()[codeUnitIndex] & 0b11000000 ) != 0b10000000 ) {
+			++codePointIndex;
+		}
+		++codeUnitIndex;
+	}
+
+	return codePointIndex;
+}
+
 }
 
 namespace justify {
@@ -52,12 +68,14 @@ std::uint8_t LineAccumulator::getMissing() const {
 }
 
 void LineAccumulator::operator()(const std::string& token) {
-	if ( ( this->length_ + token.length() ) > this->max_length_ ) {
+	const std::size_t tokenLength = getCharacterLength(token);
+
+	if ( ( this->length_ + tokenLength ) > this->max_length_ ) {
 		this->discharge(true);
 	}
 
 	this->tokens_.emplace_back(token, 0);
-	this->length_ += token.length();
+	this->length_ += tokenLength;
 
 	if ( this->length_ < this->max_length_ ) {
 		this->tokens_.back().second += 1;
