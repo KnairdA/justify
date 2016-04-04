@@ -12,6 +12,13 @@ include_directories(
 
 add_executable(
 	justify
-	justify.cc
-	src/line_accumulator.cc
+		justify.cc
+		src/line_accumulator.cc
+)
+
+install(
+	TARGETS
+		justify
+	DESTINATION
+		bin
 )
