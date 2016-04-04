@@ -4,6 +4,14 @@
 
 Textual input is read from _STDIN_ and written to _STDOUT_ in its justified form. The default output width of 60 characters may be customized via the first application argument.
 
+i.e. `echo "$the_paragraph_above" | justify 40` results in:
+
+	Textual input  is  read from _STDIN_ and
+	written  to  _STDOUT_  in  its justified
+	form.  The  default output  width  of 60
+	characters  may  be  customized  via the
+	first application argument.
+
 ## Build
 
 	mkdir build
