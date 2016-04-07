@@ -9,7 +9,7 @@ namespace justify {
 
 class LineAccumulator {
 	public:
-		LineAccumulator(const std::uint8_t max_length);
+		LineAccumulator(const std::uint8_t max_length, const std::uint8_t offset);
 		~LineAccumulator();
 
 		std::uint8_t getMissing() const;
@@ -18,6 +18,7 @@ class LineAccumulator {
 
 	private:
 		const std::uint8_t max_length_;
+		const std::uint8_t offset_;
 
 		std::uint8_t length_;
 

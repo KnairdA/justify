@@ -54,8 +54,12 @@ std::size_t getCharacterLength(const std::string& token) {
 
 namespace justify {
 
-LineAccumulator::LineAccumulator(const std::uint8_t max_length):
+LineAccumulator::LineAccumulator(
+	const std::uint8_t max_length,
+	const std::uint8_t offset
+):
 	max_length_{max_length},
+	offset_{offset},
 	length_{0},
 	tokens_{} { }
 
@@ -158,6 +162,10 @@ void LineAccumulator::discharge(const bool full) {
 
 	if ( full ) {
 		this->justify();
+	}
+
+	if ( this->offset_ > 0 ) {
+		std::cout << std::string(this->offset_, ' ');
 	}
 
 	for ( const auto& token : this->tokens_ ) {

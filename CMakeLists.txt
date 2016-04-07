@@ -16,6 +16,11 @@ add_executable(
 		src/line_accumulator.cc
 )
 
+target_link_libraries(
+	justify
+		boost_program_options
+)
+
 install(
 	TARGETS
 		justify
