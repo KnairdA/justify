@@ -68,20 +68,24 @@ LineAccumulator::~LineAccumulator() {
 }
 
 std::uint8_t LineAccumulator::getMissing() const {
-	return this->max_length_ - this->length_;
+	if ( this->length_ < this->max_length_ ) {
+		return this->max_length_ - this->length_;
+	} else {
+		return 0;
+	}
 }
 
 void LineAccumulator::operator()(const std::string& token) {
 	const std::size_t tokenLength = getCharacterLength(token);
 
-	if ( ( this->length_ + tokenLength ) > this->max_length_ ) {
+	if ( tokenLength > this->getMissing() ) {
 		this->discharge(true);
 	}
 
 	this->tokens_.emplace_back(token, 0);
 	this->length_ += tokenLength;
 
-	if ( this->length_ < this->max_length_ ) {
+	if ( this->getMissing() > 0 ) {
 		this->tokens_.back().second += 1;
 		this->length_               += 1;
 	}
