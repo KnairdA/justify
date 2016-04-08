@@ -2,15 +2,23 @@
 
 ...is a single purpose program for block justification of UTF-8 encoded monospace text.
 
-Textual input is read from _STDIN_ and written to _STDOUT_ in its justified form. The default output width of 60 characters may be customized via the first application argument.
+Textual input is read from _STDIN_ and written to _STDOUT_ in its justified form. The default output width of 60 characters may be customized via `--length`. Optionally an offset of leading spaces may be defined using `--offset`.
 
-i.e. `echo "$the_paragraph_above" | justify 40` results in:
+i.e. `echo "$the_paragraph_above" | justify --length 40 --offset 2` results in:
 
-	Textual input  is  read from _STDIN_ and
-	written  to  _STDOUT_  in  its justified
-	form.  The  default output  width  of 60
-	characters  may  be  customized  via the
-	first application argument.
+	  Textual input  is  read from _STDIN_ and
+	  written  to  _STDOUT_  in  its justified
+	  form.  The  default output  width  of 60
+	  characters    may   be    customized via
+	  `--length`.  Optionally   an   offset of
+	  leading   spaces  may  be  defined using
+	  `--offset`.
+
+## Requirements
+
+* CMake
+* C++ compiler with C++14 support
+* Boost [Program Options](http://www.boost.org/doc/libs/1_60_0/doc/html/program_options.html)
 
 ## Build
 
@@ -18,5 +26,3 @@ i.e. `echo "$the_paragraph_above" | justify 40` results in:
 	cd build
 	cmake ..
 	make
-
-A current C++ compiler with support for C++14 is required.
