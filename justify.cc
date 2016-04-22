@@ -81,8 +81,12 @@ bool process(const boost::program_options::variables_map& variables) {
 	justify::LineAccumulator acc{line_length, line_offset};
 	std::string              token;
 
-	while ( std::cin >> token ) {
-		acc(token);
+	while ( std::cin.good() ) {
+		if ( std::cin >> token ) {
+			acc(token);
+		} else {
+			return true;
+		}
 	}
 
 	return true;

@@ -149,7 +149,7 @@ void LineAccumulator::justify() {
 			std::for_each(
 				indizes.begin(),
 				indizes.begin() + this->getMissing(),
-				[&](std::uint8_t x) {
+				[&](const std::uint8_t x) {
 					this->tokens_[x].second += 1;
 					this->length_           += 1;
 				}
