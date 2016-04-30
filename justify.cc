@@ -23,6 +23,11 @@ boost::optional<boost::program_options::variables_map> input(
 			boost::program_options::value<int>(),
 			"Number of spaces to be prepended on each line"
 		)
+		(
+			"seed",
+			boost::program_options::value<std::uint32_t>(),
+			"Seed for pseudorandomly distributing missing spaces"
+		)
 	;
 
 	boost::program_options::variables_map variables;
@@ -51,8 +56,9 @@ bool process(const boost::program_options::variables_map& variables) {
 	std::cout.sync_with_stdio(false);
 	std::cin.sync_with_stdio(false);
 
-	std::uint8_t line_length = 60;
-	std::uint8_t line_offset = 0;
+	std::uint8_t  line_length = 60;
+	std::uint8_t  line_offset = 0;
+	std::uint32_t seed        = 3473018784;
 
 	if ( variables.count("length") ) {
 		const int user_length = variables["length"].as<int>();
@@ -78,7 +84,11 @@ bool process(const boost::program_options::variables_map& variables) {
 		}
 	}
 
-	justify::LineAccumulator acc{line_length, line_offset};
+	if ( variables.count("seed") ) {
+		seed = variables["seed"].as<std::uint32_t>();
+	}
+
+	justify::LineAccumulator acc{line_length, line_offset, seed};
 	std::string              token;
 
 	while ( std::cin.good() ) {

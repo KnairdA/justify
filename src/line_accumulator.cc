@@ -6,23 +6,17 @@
 
 namespace {
 
-static std::mt19937 generator;
-
 std::uint8_t getRandomIndex(
-	const int          seed,
+	std::mt19937&      generator,
 	const std::uint8_t n
 ) {
-	generator.seed(seed);
-
 	return std::uniform_int_distribution<std::uint8_t>{0, n}(generator);
 }
 
 std::vector<std::uint8_t> getRandomIndizes(
-	const int          seed,
-	const std::uint8_t n
+	std::mt19937&       generator,
+	const std::uint8_t  n
 ) {
-	generator.seed(seed);
-
 	std::vector<std::uint8_t> indizes(n);
 	std::iota(indizes.begin(), indizes.end(), 0);
 	std::shuffle(
@@ -55,24 +49,18 @@ std::size_t getCharacterLength(const std::string& token) {
 namespace justify {
 
 LineAccumulator::LineAccumulator(
-	const std::uint8_t max_length,
-	const std::uint8_t offset
+	const std::uint8_t  max_length,
+	const std::uint8_t  offset,
+	const std::uint32_t seed
 ):
 	max_length_{max_length},
 	offset_{offset},
+	generator_{seed},
 	length_{0},
 	tokens_{} { }
 
 LineAccumulator::~LineAccumulator() {
 	this->discharge(false);
-}
-
-std::uint8_t LineAccumulator::getMissing() const {
-	if ( this->length_ < this->max_length_ ) {
-		return this->max_length_ - this->length_;
-	} else {
-		return 0;
-	}
 }
 
 void LineAccumulator::operator()(const std::string& token) {
@@ -91,10 +79,15 @@ void LineAccumulator::operator()(const std::string& token) {
 	}
 }
 
-void LineAccumulator::justify() {
-	const int seed = this->tokens_.size()
-	               + this->getMissing();
+std::uint8_t LineAccumulator::getMissing() const {
+	if ( this->length_ < this->max_length_ ) {
+		return this->max_length_ - this->length_;
+	} else {
+		return 0;
+	}
+}
 
+void LineAccumulator::justify() {
 	switch ( this->tokens_.size() ) {
 		// There is no sensible block justification of null or any single token
 		case 0:
@@ -137,14 +130,18 @@ void LineAccumulator::justify() {
 		}
 		// randomly distribute missing spaces
 		case 1: {
-			this->tokens_[
-				getRandomIndex(seed, this->tokens_.size() - 2)
-			].second += 1;
+			this->tokens_[getRandomIndex(
+				this->generator_,
+				this->tokens_.size() - 2
+			)].second += 1;
 
 			break;
 		}
 		default: {
-			const auto indizes = getRandomIndizes(seed, this->tokens_.size() - 2);
+			const auto indizes = getRandomIndizes(
+				this->generator_,
+				this->tokens_.size() - 2
+			);
 
 			std::for_each(
 				indizes.begin(),

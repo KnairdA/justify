@@ -14,6 +14,8 @@ i.e. `echo "$the_paragraph_above" | justify --length 40 --offset 2` results in:
 	  leading   spaces  may  be  defined using
 	  `--offset`.
 
+The seed used to pseudorandomly distribute missing spaces may be customized via the `--seed` argument.
+
 ## Requirements
 
 * CMake
